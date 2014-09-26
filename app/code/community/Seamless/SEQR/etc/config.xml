@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+    <modules>
+        <Seamless_SEQR>
+            <version>1.0.0</version>
+        </Seamless_SEQR>
+    </modules>
+
+    <global>
+        <models>
+            <seqr>
+                <class>Seamless_SEQR_Model</class>
+            </seqr>
+        </models>
+
+        <blocks>
+            <seqr>
+                <class>Seamless_SEQR_Block</class>
+            </seqr>
+        </blocks>
+
+        <helpers>
+            <seqr>
+                <class>Seamless_SEQR_Helper</class>
+            </seqr>
+        </helpers>
+    </global>
+
+    <frontend>
+        <routers>
+            <seqr>
+                <use>standard</use>
+                <args>
+                    <module>Seamless_SEQR</module>
+                    <frontName>seqr</frontName>
+                </args>
+            </seqr>
+        </routers>
+
+        <layout>
+            <updates>
+                <seqr>
+                    <file>seqr.xml</file>
+                </seqr>
+            </updates>
+        </layout>
+    </frontend>
+
+    <default>
+        <payment>
+            <seqr>
+                <active>0</active>
+                <title>SEQR</title>
+                <footer>Purchase on approval is valid for 30 days</footer>
+                <unit_type>EA</unit_type>
+                <model>seqr/paymentmethod</model>
+                <order_status>pending</order_status>
+                <paid_order_status>processing</paid_order_status>
+                <canceled_order_status>canceled</canceled_order_status>
+                <seconds_before_cancel>120</seconds_before_cancel>
+            </seqr>
+        </payment>
+    </default>
+
+    <crontab>
+        <jobs>
+            <seqr_cancel_old_orders>
+                <schedule><cron_expr>0,10,20,30,40,50 * * * *</cron_expr></schedule>
+                <run><model>seqr/observer::cancelOldOrders</model></run>
+            </seqr_cancel_old_orders>
+        </jobs>
+    </crontab>
+</config>

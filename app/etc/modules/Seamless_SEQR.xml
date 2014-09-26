@@ -1,0 +1,11 @@
+<config>
+    <modules>
+        <Seamless_SEQR>
+            <active>true</active>
+            <codePool>community</codePool>
+            <depends>
+                <Mage_Payment/>
+            </depends>
+        </Seamless_SEQR>
+    </modules>
+</config>

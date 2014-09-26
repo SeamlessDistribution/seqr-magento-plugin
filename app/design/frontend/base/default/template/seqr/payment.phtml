@@ -1,0 +1,19 @@
+<link rel="stylesheet" type="text/css" href="http://10.2.0.195:8880/seqr-webshop-plugin/src/main/css/seqrShop.css">
+
+<?php
+    echo '<script>'.
+            'seqr.id = "'.$this->getOrderId().'";'.
+            'seqr.timeout = '.$this->getSecondsBeforeCancel().' * 1000;'.
+        '</script>';
+?>
+
+<div style="width: 500px; margin: auto;">
+    <?php
+        echo '<script id="seqrShop"'.
+                'src="http://10.2.0.195:8880/seqr-webshop-plugin/src/main/js/seqrShop.js'.
+                '#!mode=demo&injectCSS=true&statusCallback=seqrStatusUpdated&'.
+                'invoiceQRCode='.$this->getQrCode().'&'.
+                'statusURL='.Mage::getBaseUrl().'/seqr/payment/check">'.
+            '</script>';
+    ?>
+</div>

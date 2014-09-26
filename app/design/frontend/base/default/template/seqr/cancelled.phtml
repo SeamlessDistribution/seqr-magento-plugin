@@ -1,0 +1,17 @@
+<div class="page-title" style="text-align: center;">
+    <h1><?php echo $this->__('Your order has been cancelled.') ?></h1>
+</div>
+
+<p style="text-align: center;"><?php echo $this->__('Your order was cancelled from SEQR, if you still want to buy chosen goods please checkout them again.'); ?></p>
+
+<div class="buttons-set">
+    <button type="button" class="button" title="<?php echo $this->__('Checkout') ?>"
+            onclick="window.location='<?php echo $this->getUrl('checkout/onepage') ?>'">
+        <span><span><?php echo $this->__('Checkout') ?></span></span>
+    </button>
+
+    <button type="button" class="button" title="<?php echo $this->__('Continue Shopping') ?>"
+            onclick="window.location='<?php echo $this->getUrl() ?>'">
+        <span><span><?php echo $this->__('Continue Shopping') ?></span></span>
+    </button>
+</div>
