@@ -31,7 +31,7 @@ Plugin can be installed via installation in Magento Connect Manager or by coppin
 
 Plugin configuration properties available on Magento administration page System > Configuration > Payment Methods (System > Configuration > Payment Options).
 
-Contact Seamless on integrations@seamless.se to get the right settings for the SOAP url, Terminal Terminal ID and Password. 
+Contact Seamless on integrations@seamless.se to get the right settings for the SOAP url, Terminal ID and Terminal Password. 
 
 New order, paid order, cancelled order statuses, used to marking orders in Magento.
 
