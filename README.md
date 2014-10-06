@@ -1,4 +1,4 @@
-## SEQR Magento Plugin ##				
+## SEQR Magento Plugin			
 
 ### SEQR ###
 SEQR is Sweden’s and Europe’s most used mobile wallet in stores and online. SEQR enables anybody with a smartphone to pay in stores online and in-app. Users can also transfer money at no charge, store receipts digitally and receive offers and promotions directly through one mobile app.
