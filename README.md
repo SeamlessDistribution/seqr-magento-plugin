@@ -12,11 +12,13 @@ Learn more about SEQR on www.seqr.com
 ### Plugin ###
 Plugin provide possibility for shop clients to select SEQR as payment method, and after order placement pay it via scanning QR code (or directly from your mobile device).  
 
-1. SEQR as payment method on checkout page. 
-2. Payment via scanning of QR code.
-3. Payment from
+1. SEQR as payment method on checkout page. ![alt tag](https://raw.githubusercontent.com/SeamlessDistribution/seqr-magento-plugin/master/doc/Magento-Checkout.png)
+2. Payment via scanning of QR code. ![alt tag](https://raw.githubusercontent.com/SeamlessDistribution/seqr-magento-plugin/master/doc/Magento-Payment-QR.png)
+3. Payment from ![alt tag](https://raw.githubusercontent.com/SeamlessDistribution/seqr-magento-plugin/master/doc/Magento-Payment-Mobile.png)
  
 ### Installation & Configuration ###
+![alt tag](https://raw.githubusercontent.com/SeamlessDistribution/seqr-magento-plugin/master/doc/Magento-SEQR-Settings.png)
+
 Plugin can be installed via installation in Magento Connect Manager or by copping all plugin files to the magento directory. Magento Connect available on Magento administration page System > Magento Connect > Magento Connect Manager
 
 Plugin configuration properties available on Magento administration page System > Configuration > Payment Methods (System > Configuration > Payment Options).
@@ -31,7 +33,7 @@ All properties are required and should be configured before enabling this paymen
 
 ### Development & File structure ###
 
-Plugin based on javascript plugin for SEQR integration. Please check it for understanding how work web component github.com/SeamlessDistribution/seqr-webshop-plugin. For more information about SEQR API please check developer.seqr.com/merchant/webshop/
+Plugin based on javascript plugin for SEQR integration. Please check it for understanding how work web component http://github.com/SeamlessDistribution/seqr-webshop-plugin. For more information about SEQR API please check http://developer.seqr.com/merchant/webshop/
 
 ##### Plugin categories: #####
 * /app/code/community/Seamless/SEQR/
