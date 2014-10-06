@@ -10,7 +10,7 @@ SEQR is based on Seamless’ technology, a mobile phone payment and transaction 
 Learn more about SEQR on www.seqr.com
 
 ### Dowload ###
-* Version 1.0: https://github.com/SeamlessDistribution/seqr-magento-plugin/raw/master/builds/Seamless_SEQR-1.0.0.tgz
+* Version 1.0: [Seamless_SEQR-1.0.0.tgz](https://github.com/SeamlessDistribution/seqr-magento-plugin/raw/master/builds/Seamless_SEQR-1.0.0.tgz)
 
 ### Plugin ###
 Plugin provide possibility for shop clients to select SEQR as payment method, and after order placement pay it via scanning QR code (or directly from your mobile device).  
