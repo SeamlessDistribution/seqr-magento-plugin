@@ -12,9 +12,17 @@ Learn more about SEQR on www.seqr.com
 ### Plugin ###
 Plugin provide possibility for shop clients to select SEQR as payment method, and after order placement pay it via scanning QR code (or directly from your mobile device).  
 
-1. SEQR as payment method on checkout page. ![alt tag](https://raw.githubusercontent.com/SeamlessDistribution/seqr-magento-plugin/master/doc/Magento-Checkout.png)
-2. Payment via scanning of QR code. ![alt tag](https://raw.githubusercontent.com/SeamlessDistribution/seqr-magento-plugin/master/doc/Magento-Payment-QR.png)
-3. Payment from ![alt tag](https://raw.githubusercontent.com/SeamlessDistribution/seqr-magento-plugin/master/doc/Magento-Payment-Mobile.png)
+* SEQR as payment method on checkout page. 
+ 
+![alt tag](https://raw.githubusercontent.com/SeamlessDistribution/seqr-magento-plugin/master/doc/Magento-Checkout.png)
+
+* Payment via scanning of QR code.
+
+![alt tag](https://raw.githubusercontent.com/SeamlessDistribution/seqr-magento-plugin/master/doc/Magento-Payment-QR.png)
+
+* Payment from 
+
+![alt tag](https://raw.githubusercontent.com/SeamlessDistribution/seqr-magento-plugin/master/doc/Magento-Payment-Mobile.png)
  
 ### Installation & Configuration ###
 ![alt tag](https://raw.githubusercontent.com/SeamlessDistribution/seqr-magento-plugin/master/doc/Magento-SEQR-Settings.png)
