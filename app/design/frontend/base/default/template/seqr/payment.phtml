@@ -8,12 +8,5 @@
 ?>
 
 <div style="width: 500px; margin: auto;">
-    <?php
-        echo '<script id="seqrShop"'.
-                'src="https://cdn.seqr.com/webshop-plugin/js/seqrShop.js'.
-                '#!mode=demo&injectCSS=true&statusCallback=seqrStatusUpdated&'.
-                'invoiceQRCode='.$this->getQrCode().'&'.
-                'statusURL='.Mage::getBaseUrl().'/seqr/payment/check">'.
-            '</script>';
-    ?>
+    <?php echo '<script id="seqrShop" src="'.$this->getWebPluginUrl().'"></script>'; ?>
 </div>
