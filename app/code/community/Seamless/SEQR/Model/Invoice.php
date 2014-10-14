@@ -42,7 +42,9 @@ class Seamless_SEQR_Model_Invoice {
                     Mage::logException($e);
                 }
             }
-        } else $order->setStatus(Mage::getStoreConfig('payment/seqr/canceled_order_status'))->save();
+        } else if ($result->status->status === 'CANCELED') {
+            $order->setStatus(Mage::getStoreConfig('payment/seqr/canceled_order_status'))->save();
+        }
 
         return $result;
     }
