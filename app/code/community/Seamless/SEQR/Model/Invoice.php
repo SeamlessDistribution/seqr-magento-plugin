@@ -35,12 +35,25 @@ class Seamless_SEQR_Model_Invoice {
         if ($result->status->status === 'PAID') {
             $order->setStatus(Mage::getStoreConfig('payment/seqr/paid_order_status'))->save();
 
-            if ($order->getCanSendNewEmailFlag()) {
-                try {
-                    $order->sendNewOrderEmail();
-                } catch(Exception $e) {
-                    Mage::logException($e);
+            try {
+                if ($order->getCanSendNewEmailFlag()) $order->sendNewOrderEmail();
+
+                if (Mage::getStoreConfig('payment/seqr/ivoice_autocreate')) {
+                    if(! $order->canInvoice())
+                        Mage::throwException(Mage::helper('core')->__('Cannot create an invoice.'));
+
+                    $invoice = Mage::getModel('sales/service_order', $order)->prepareInvoice();
+
+                    $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_ONLINE);
+                    $invoice->register();
+
+                    Mage::getModel('core/resource_transaction')
+                        ->addObject($invoice)
+                        ->addObject($invoice->getOrder())
+                        ->save();
                 }
+            } catch(Exception $e) {
+                Mage::logException($e);
             }
         } else if ($result->status->status === 'CANCELED') {
             $order->setStatus(Mage::getStoreConfig('payment/seqr/canceled_order_status'))->save();
