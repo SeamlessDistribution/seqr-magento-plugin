@@ -100,7 +100,7 @@ class Seamless_SEQR_Model_Api {
             'initiatorPrincipalId' => array(
                 'id' => Mage::getStoreConfig('payment/seqr/terminal_id'),
                 'type' => 'TERMINALID',
-                'userId' => 9900
+                'userId' => Mage::getStoreConfig('payment/seqr/user_id')
             ),
             'password' => Mage::getStoreConfig('payment/seqr/terminal_password'),
             'clientRequestTimeout' => '0'
