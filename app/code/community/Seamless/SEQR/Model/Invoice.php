@@ -32,7 +32,7 @@ class Seamless_SEQR_Model_Invoice {
 
         $this->setAdditionalData($order, $paymentData);
 
-        if ($result->status->status === 'PAID') {
+        if ($result->status === 'PAID') {
             $order->setStatus(Mage::getStoreConfig('payment/seqr/paid_order_status'))->save();
 
             try {
@@ -55,7 +55,7 @@ class Seamless_SEQR_Model_Invoice {
             } catch(Exception $e) {
                 Mage::logException($e);
             }
-        } else if ($result->status->status === 'CANCELED') {
+        } else if ($result->status === 'CANCELED') {
             $order->setStatus(Mage::getStoreConfig('payment/seqr/canceled_order_status'))->save();
         }
 
