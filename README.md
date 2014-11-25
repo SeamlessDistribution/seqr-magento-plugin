@@ -9,26 +9,23 @@ SEQR is based on Seamless’ technology, a mobile phone payment and transaction 
 
 Learn more about SEQR on www.seqr.com
 
-### Dowload ###
-* Version 1.0: [Seamless_SEQR-1.0.1.tgz](https://github.com/SeamlessDistribution/seqr-magento-plugin/raw/master/builds/Seamless_SEQR-1.0.1.tgz)
-
 ### Plugin ###
 Plugin provide possibility for shop clients to select SEQR as payment method, and after order placement pay it via scanning QR code (or directly from your mobile device).  
 
 * SEQR as payment method on checkout page. 
  
-![alt tag](https://raw.githubusercontent.com/SeamlessDistribution/seqr-magento-plugin/master/doc/Magento-Checkout.png)
+![alt tag](/doc/Magento-Checkout.png)
 
 * Payment via scanning of QR code.
 
-![alt tag](https://raw.githubusercontent.com/SeamlessDistribution/seqr-magento-plugin/master/doc/Magento-Payment-QR.png)
+![alt tag](/doc/Magento-Payment-QR.png)
 
 * Payment from 
 
-![alt tag](https://raw.githubusercontent.com/SeamlessDistribution/seqr-magento-plugin/master/doc/Magento-Payment-Mobile.png)
+![alt tag](/doc/Magento-Payment-Mobile.png)
  
 ### Installation & Configuration ###
-![alt tag](https://raw.githubusercontent.com/SeamlessDistribution/seqr-magento-plugin/master/doc/Magento-SEQR-Settings.png)
+![alt tag](/doc/Magento-SEQR-Settings.png)
 
 Plugin can be installed via installation in Magento Connect Manager or by copping all plugin files to the magento directory. Magento Connect available on Magento administration page System > Magento Connect > Magento Connect Manager
 

@@ -11,12 +11,12 @@ class Seamless_SEQR_Model_Api {
      * @param Mage_Sales_Model_Order $order
      * @return null
      */
-    public function sendInvoice(Mage_Sales_Model_Order $order) {
+    public function sendInvoice($order) {
 
         try {
             $SOAP = $this->SOAP();
             $result = $SOAP->sendInvoice(array(
-                'context' => $this->getRequestContext(),
+                'context' => $this->getRequestContext($order->getIncrementId()),
                 'invoice' => $this->getInvoiceRequest($order)
             ))->return;
 
@@ -36,12 +36,12 @@ class Seamless_SEQR_Model_Api {
      * @param integer $version Version of invoice (nullable)
      * @return null
      */
-    public function getPaymentStatus($reference, $version) {
+    public function getPaymentStatus($order, $reference, $version) {
 
         try {
             $SOAP = $this->SOAP();
             $result = $SOAP->getPaymentStatus(array(
-                "context" => $this->getRequestContext(),
+                "context" => $this->getRequestContext($order->getIncrementId()),
                 "invoiceReference" => $reference,
                 "invoiceVersion" => $version ? $version : 0
             ))->return;
@@ -61,12 +61,14 @@ class Seamless_SEQR_Model_Api {
      * @param string $reference SEQR invoice reference
      * @return null
      */
-    public function cancelInvoice($reference) {
+    public function cancelInvoice($order, $reference) {
+
+        if (! $reference) return null;
 
         try {
             $SOAP = $this->SOAP();
             $result = $SOAP->cancelInvoice(array(
-                "context" => $this->getRequestContext(),
+                "context" => $this->getRequestContext($order->getIncrementId()),
                 "invoiceReference" => $reference
             ))->return;
 
@@ -94,7 +96,7 @@ class Seamless_SEQR_Model_Api {
      *
      * @return array Context request based on Terminal ID
      */
-    private function getRequestContext() {
+    private function getRequestContext($orderId) {
 
         return array(
             'initiatorPrincipalId' => array(
@@ -102,6 +104,11 @@ class Seamless_SEQR_Model_Api {
                 'type' => 'TERMINALID',
                 'userId' => Mage::getStoreConfig('payment/seqr/user_id')
             ),
+
+            'clientId' => Mage::getConfig()->getNode()->modules->Seamless_SEQR->version,
+            'clientReference' => $orderId,
+            'clientComment' => Mage::getStoreConfig('payment/seqr/title'),
+
             'password' => Mage::getStoreConfig('payment/seqr/terminal_password'),
             'clientRequestTimeout' => '0'
         );
@@ -211,6 +218,4 @@ class Seamless_SEQR_Model_Api {
 
         return $invoice;
     }
-
-
 }

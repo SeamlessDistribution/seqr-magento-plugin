@@ -25,14 +25,14 @@ class Seamless_SEQR_Model_Invoice {
             || $paymentData->status->status === 'CANCELED') return $paymentData->status;
 
         $result = Mage::getSingleton('seqr/api')
-            ->getPaymentStatus($paymentData->invoiceReference, $paymentData->version);
+            ->getPaymentStatus($order, $paymentData->invoiceReference, $paymentData->version);
 
         $paymentData->status = $result;
         $paymentData->version = $result->version;
 
         $this->setAdditionalData($order, $paymentData);
 
-        if ($result->status->status === 'PAID') {
+        if ($result->status === 'PAID') {
             $order->setStatus(Mage::getStoreConfig('payment/seqr/paid_order_status'))->save();
 
             try {
@@ -55,7 +55,7 @@ class Seamless_SEQR_Model_Invoice {
             } catch(Exception $e) {
                 Mage::logException($e);
             }
-        } else if ($result->status->status === 'CANCELED') {
+        } else if ($result->status === 'CANCELED') {
             $order->setStatus(Mage::getStoreConfig('payment/seqr/canceled_order_status'))->save();
         }
 
@@ -68,15 +68,14 @@ class Seamless_SEQR_Model_Invoice {
         if (! $paymentData) return null;
         if ($paymentData->status->status === 'PAID') return false;
 
-        $result = Mage::getSingleton('seqr/api')->cancelInvoice(json_decode($paymentData)->invoiceReference);
+        $result = Mage::getSingleton('seqr/api')->cancelInvoice($order, json_decode($paymentData)->invoiceReference);
 
         $paymentData->status->status = 'CANCELED';
 
         $this->setAdditionalData($order, $paymentData);
-
-        if ($result && $result->resultCode === 0) return false;
         $order->setStatus(Mage::getStoreConfig('payment/seqr/canceled_order_status'))->save();
-        return true;
+
+        return $result && $result->resultCode === 0;
     }
 
     private function sendInvoice(Mage_Sales_Model_Order $order) {
