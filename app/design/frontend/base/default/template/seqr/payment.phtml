@@ -2,11 +2,17 @@
 
 <?php
     echo '<script>'.
-            'seqr.id = "'.$this->getOrderId().'";'.
-            'seqr.timeout = '.$this->getSecondsBeforeCancel().' * 1000;'.
+            'seqr.id = "' . $this->getOrderId() . '";'.
+            'seqr.timeout = ' . $this->getSecondsBeforeCancel() . ' * 1000;'.
         '</script>';
 ?>
 
 <div style="width: 500px; margin: auto;">
-    <?php echo '<script id="seqrShop" src="'.$this->getWebPluginUrl().'"></script>'; ?>
+    <?php
+        if ($this->getOrderId()) {
+            echo '<script id="seqrShop" src="'.$this->getWebPluginUrl().'"></script>';
+        } else {
+            echo 'Error: SEQR payment temporarily unavailable, please try again later.';
+        }
+    ?>
 </div>
