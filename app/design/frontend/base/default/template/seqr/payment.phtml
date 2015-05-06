@@ -9,7 +9,7 @@
 
 <div style="width: 500px; margin: auto;">
     <?php
-        if ($this->getOrderId()) {
+        if ($this->getOrderId() && $this->getQrCode() {
             echo '<script id="seqrShop" src="'.$this->getWebPluginUrl().'"></script>';
         } else {
             echo 'Error: SEQR payment temporarily unavailable, please try again later.';
