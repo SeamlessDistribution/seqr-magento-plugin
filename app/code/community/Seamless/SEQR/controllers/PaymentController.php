@@ -32,19 +32,9 @@ class Seamless_SEQR_PaymentController extends Mage_Core_Controller_Front_Action 
     /**
      * Display information that order was canceled.
      */
-    public function cancelledAction() {
+    public function cancelAction() {
 
-        $order = $this->loadOrder();
-        if (! $order
-            || $order->getStatus() != Mage::getStoreConfig('payment/seqr/canceled_order_status')
-            || ! $this->isSEQRPayment($order)) {
-
-            $this->_forward('noRoute');
-            return;
-        }
-
-        $this->loadLayout();
-        $this->renderLayout();
+       // TODO: Add
     }
 
     /**
