@@ -13,5 +13,4 @@
             <block type="seqr/payment" name="seqr.payment" template="seqr/payment.phtml"/>
         </reference>
     </seqr_payment_index>
-
 </layout>
