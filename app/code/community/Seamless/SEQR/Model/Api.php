@@ -3,30 +3,26 @@
 /**
  * Requests to SEQR API
  */
-class Seamless_SEQR_Model_Api {
-
+class Seamless_SEQR_Model_Api
+{
     /**
      * Sends an invoice to SEQR server
      *
      * @param Mage_Sales_Model_Order $order
      * @return null
+     * @throws
      */
-    public function sendInvoice($order) {
+    public function sendInvoice(Mage_Sales_Model_Order $order)
+    {
+        $SOAP = $this->SOAP();
+        $result = $SOAP->sendInvoice(array(
+            'context' => $this->getRequestContext($order->getIncrementId()),
+            'invoice' => $this->getInvoiceRequest($order)
+        ))->return;
 
-        try {
-            $SOAP = $this->SOAP();
-            $result = $SOAP->sendInvoice(array(
-                'context' => $this->getRequestContext($order->getIncrementId()),
-                'invoice' => $this->getInvoiceRequest($order)
-            ))->return;
+        if ($result->resultCode != 0) throw new Exception($result->resultCode . ' : ' . $result->resultDescription);
 
-            if ($result->resultCode != 0) throw new Exception($result->resultCode . ' : ' . $result->resultDescription);
-
-            return $result;
-        } catch(Exception $e) {
-            Mage::log('Error: ' . $e->getMessage());
-            return null;
-        }
+        return $result;
     }
 
     /**
@@ -36,9 +32,10 @@ class Seamless_SEQR_Model_Api {
      * @param integer $version Version of invoice (nullable)
      * @return null
      */
-    public function getPaymentStatus($order, $reference, $version) {
-
-        try {
+    public function getPaymentStatus(Mage_Sales_Model_Order $order, $reference, $version)
+    {
+        try
+        {
             $SOAP = $this->SOAP();
             $result = $SOAP->getPaymentStatus(array(
                 "context" => $this->getRequestContext($order->getIncrementId()),
@@ -49,7 +46,9 @@ class Seamless_SEQR_Model_Api {
             if ($result->resultCode != 0) throw new Exception($result->resultCode . ' : ' . $result->resultDescription);
 
             return $result;
-        } catch(Exception $e) {
+        }
+        catch(Exception $e)
+        {
             Mage::log('Error: ' . $e->getMessage());
             return null;
         }
@@ -58,14 +57,16 @@ class Seamless_SEQR_Model_Api {
     /**
      * Cancels an unpaid invoice. Can be triggered after defined timeout
      *
+     * @param Mage_Sales_Model_Order order
      * @param string $reference SEQR invoice reference
      * @return null
      */
-    public function cancelInvoice($order, $reference) {
-
+    public function cancelInvoice(Mage_Sales_Model_Order $order, $reference)
+    {
         if (! $reference) return null;
 
-        try {
+        try
+        {
             $SOAP = $this->SOAP();
             $result = $SOAP->cancelInvoice(array(
                 "context" => $this->getRequestContext($order->getIncrementId()),
@@ -75,10 +76,117 @@ class Seamless_SEQR_Model_Api {
             if ($result->resultCode != 0) throw new Exception($result->resultCode . ' : ' . $result->resultDescription);
 
             return $result;
-        } catch(Exception $e) {
+        }
+        catch(Exception $e)
+        {
             Mage::log('Error: ' . $e->getMessage());
             return null;
         }
+    }
+
+    public function refundPayment(Mage_Sales_Model_Order $order, $creditMemo, $ersReference)
+    {
+        if (! $ersReference) return null;
+
+        $helper = Mage::helper('seqr/data');
+
+        $unitType = Mage::getStoreConfig('payment/seqr/unit_type');
+        $currencyCode = $creditMemo->getOrderCurrencyCode();
+
+        $invoiceRows = array();
+
+        foreach ($creditMemo->getItemsCollection() as $item) {
+            if (! $item->getQty()) continue;
+
+            $invoiceRows[] = array(
+                'itemDescription' => $item->getName(),
+                'itemSKU' => $item->getSku(),
+                'itemTaxRate' => $helper->toFloat(0),
+                'itemUnit' => $unitType,
+                'itemQuantity' => $helper->toFloat($item->getQty()),
+                'itemUnitPrice' => array(
+                    'currency' => $currencyCode,
+                    'value' => $helper->toFloat($item->getPriceInclTax())
+                ),
+                'itemTotalAmount' => array(
+                    'currency' => $currencyCode,
+                    'value' => $helper->toFloat($item->getRowTotalInclTax())
+                )
+            );
+        }
+
+        if ($creditMemo->getShippingAmount()) {
+            $invoiceRows[] = array(
+                'itemDescription' => $helper->__('Shipping & Handling'),
+                'itemTaxRate' => $helper->toFloat(0),
+                'itemUnit' => $unitType,
+                'itemQuantity' => $helper->toFloat(1),
+                'itemUnitPrice' => array(
+                    'currency' => $currencyCode,
+                    'value' => $helper->toFloat($creditMemo->getShippingAmount())
+                ),
+                'itemTotalAmount' => array(
+                    'currency' => $currencyCode,
+                    'value' => $helper->toFloat($creditMemo->getShippingAmount())
+                )
+            );
+        }
+
+        if ($creditMemo->getAdjustmentNegative()) {
+            $invoiceRows[] = array(
+                'itemDescription' => $helper->__('Adjustment Fee'),
+                'itemTaxRate' => $helper->toFloat(0),
+                'itemUnit' => $unitType,
+                'itemQuantity' => $helper->toFloat(1),
+                'itemUnitPrice' => array(
+                    'currency' => $currencyCode,
+                    'value' => $helper->toFloat(-$creditMemo->getAdjustmentNegative())
+                ),
+                'itemTotalAmount' => array(
+                    'currency' => $currencyCode,
+                    'value' => $helper->toFloat(-$creditMemo->getAdjustmentNegative())
+                )
+            );
+        }
+
+        if ($creditMemo->getAdjustmentPositive()) {
+            $invoiceRows[] = array(
+                'itemDescription' => $helper->__('Adjustment Refund'),
+                'itemTaxRate' => $helper->toFloat(0),
+                'itemUnit' => $unitType,
+                'itemQuantity' => $helper->toFloat(1),
+                'itemUnitPrice' => array(
+                    'currency' => $currencyCode,
+                    'value' => $helper->toFloat($creditMemo->getAdjustmentPositive())
+                ),
+                'itemTotalAmount' => array(
+                    'currency' => $currencyCode,
+                    'value' => $helper->toFloat($creditMemo->getAdjustmentPositive())
+                )
+            );
+        }
+
+        $SOAP = $this->SOAP();
+        $result = $SOAP->refundPayment(array(
+            "context" => $this->getRequestContext($order->getIncrementId()),
+            "ersReference" => $ersReference,
+            "invoice" => array(
+                "paymentMode" => "IMMEDIATE_DEBIT",
+                "acknowledgmentMode" => "NO_ACKNOWLEDGMENT",
+                "cashierId" => "MainWeb",
+                "issueDate" => date('Y-m-d\Th:i:s'),
+                "title" => Mage::getStoreConfig('payment/seqr/title') . " - REFUND",
+                "clientInvoiceId" => $creditMemo->getInvoiceId(),
+                "invoiceRows" => $invoiceRows,
+                "totalAmount" => array(
+                    "currency" => $currencyCode,
+                    "value" => $helper->toFloat($creditMemo->getGrandTotal())
+                )
+            )
+        ))->return;
+
+        if ($result->resultCode != 0) throw new Exception($result->resultCode . ' : ' . $result->resultDescription);
+        return $result;
     }
 
     /**
@@ -86,8 +194,8 @@ class Seamless_SEQR_Model_Api {
      *
      * @return SoapClient SOAP client of SEQR API or false if WSDL is unavailable.
      */
-    private function SOAP() {
-
+    private function SOAP()
+    {
         return new SoapClient(Mage::getStoreConfig('payment/seqr/soap_url'), array( 'trace' => 1, 'connection_timeout' => 3000 ));
     }
 
@@ -96,9 +204,11 @@ class Seamless_SEQR_Model_Api {
      *
      * @return array Context request based on Terminal ID
      */
-    private function getRequestContext($orderId) {
-
+    private function getRequestContext($orderId)
+    {
         return array(
+            'channel' => 'MagentoWS',
+
             'initiatorPrincipalId' => array(
                 'id' => Mage::getStoreConfig('payment/seqr/terminal_id'),
                 'type' => 'TERMINALID',
@@ -120,7 +230,8 @@ class Seamless_SEQR_Model_Api {
      * @param Mage_Sales_Model_Order $order Order object
      * @return array Order representation used by SEQR
      */
-    private function getInvoiceRequest(Mage_Sales_Model_Order $order) {
+    private function getInvoiceRequest(Mage_Sales_Model_Order $order)
+    {
         $helper = Mage::helper('seqr/data');
 
         $currencyCode = $order->getOrderCurrencyCode();
@@ -163,7 +274,8 @@ class Seamless_SEQR_Model_Api {
         );
 
         // Shipping & Handling
-        if ($order->getShippingInclTax() && intval($order->getShippingInclTax())) {
+        if ($order->getShippingInclTax() && intval($order->getShippingInclTax()))
+        {
             $invoice['invoiceRows'][] = array(
                 'itemDescription' => $helper->__('Shipping & Handling'),
                 'itemQuantity' => 1,
@@ -181,7 +293,8 @@ class Seamless_SEQR_Model_Api {
         }
 
         // Discount
-        if ($order->getDiscountAmount() && intval($order->getDiscountAmount())) {
+        if ($order->getDiscountAmount() && intval($order->getDiscountAmount()))
+        {
             $invoice['invoiceRows'][] = array(
                 'itemDescription' => $helper->__('Discount'),
                 'itemQuantity' => 1,
@@ -199,7 +312,8 @@ class Seamless_SEQR_Model_Api {
         }
 
         // Shipping discount
-        if ($order->getShippingDiscountAmount() && intval($order->getShippingDiscountAmount())) {
+        if ($order->getShippingDiscountAmount() && intval($order->getShippingDiscountAmount()))
+        {
             $invoice['invoiceRows'][] = array(
                 'itemDescription' => $helper->__('Shipping Discount'),
                 'itemQuantity' => 1,
