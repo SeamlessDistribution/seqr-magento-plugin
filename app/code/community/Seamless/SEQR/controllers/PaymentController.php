@@ -5,20 +5,20 @@
  *
  * Provide actions and pages for SEQR payment proceed
  */
-class Seamless_SEQR_PaymentController extends Mage_Core_Controller_Front_Action {
-
+class Seamless_SEQR_PaymentController extends Mage_Core_Controller_Front_Action
+{
     /**
      * Displaying payment form (QR or Mobile Application link).
      *
      * Show page or no route if order not exist. (For displaying form execute sendInvoice on SEQR API)
      */
-    public function indexAction() {
-
+    public function indexAction()
+    {
         $order = $this->loadOrder();
         if (! $order
             || $order->getStatus() != Mage::getStoreConfig('payment/seqr/order_status')
-            || ! $this->isSEQRPayment($order)) {
-
+            || ! $this->isSEQRPayment($order))
+        {
             $this->_forward('noRoute');
             return;
         }
@@ -32,19 +32,17 @@ class Seamless_SEQR_PaymentController extends Mage_Core_Controller_Front_Action 
     /**
      * Display information that order was canceled.
      */
-    public function cancelledAction() {
-
+    public function cancelAction()
+    {
         $order = $this->loadOrder();
-        if (! $order
-            || $order->getStatus() != Mage::getStoreConfig('payment/seqr/canceled_order_status')
-            || ! $this->isSEQRPayment($order)) {
-
+        if (! $order || ! $this->isSEQRPayment($order))
+        {
             $this->_forward('noRoute');
             return;
         }
 
-        $this->loadLayout();
-        $this->renderLayout();
+        $this->restoreShoppingCart($order);
+        $this->_redirectUrl(Mage::helper('checkout/url')->getCheckoutUrl(), array('_secure' => true));
     }
 
     /**
@@ -53,10 +51,11 @@ class Seamless_SEQR_PaymentController extends Mage_Core_Controller_Front_Action 
      * Redirects to page which according to the status or no route if order
      * For more details about rotes please check Seamless_SEQR_PaymentController::selectRoute method.
      */
-    public function submitAction() {
-
+    public function submitAction()
+    {
         $order = $this->loadOrder();
-        if (! $order || ! $this->isSEQRPayment($order)) {
+        if (! $order || ! $this->isSEQRPayment($order))
+        {
             $this->_forward('noRoute');
             return;
         }
@@ -64,13 +63,17 @@ class Seamless_SEQR_PaymentController extends Mage_Core_Controller_Front_Action 
         $report = Mage::getSingleton('seqr/invoice')->getPaymentStatus($order);
         $route = $this->selectRoute($report);
 
-        if (! $route) {
+        if (! $route)
+        {
             $this->_forward('noRoute');
             return;
         }
 
-        if ($report->status === 'CANCELED' && ! Mage::helper('customer')->isLoggedIn()) {
+        if ($report->status === 'CANCELED')
+        {
             $this->restoreShoppingCart($order);
+            $this->_redirectUrl($route, array('_secure' => true ));
+            return;
         }
 
         $this->_redirect($route, array('order_id' => $order->getId(), '_secure' => true ));
@@ -79,18 +82,19 @@ class Seamless_SEQR_PaymentController extends Mage_Core_Controller_Front_Action 
     /**
      * Cancel old orders in SEQR.
      */
-    public function cancelOldOrdersAction() {
-
+    public function cancelOldOrdersAction()
+    {
         Mage::getModel('seqr/observer')->cancelOldOrders();
     }
 
     /**
      * Check current status of invoice in SEQR.
      */
-    public function checkAction() {
-
+    public function checkAction()
+    {
         $order = $this->loadOrder();
-        if (! $order || ! $this->isSEQRPayment($order)) {
+        if (! $order || ! $this->isSEQRPayment($order))
+        {
             $this->getResponse()->setHeader('Content-type', 'application/json', true);
             $this->getResponse()->setBody(Zend_Json::encode(array( 'error' => Mage::helper('core')->__('Could not find order'))));
             return;
@@ -108,8 +112,8 @@ class Seamless_SEQR_PaymentController extends Mage_Core_Controller_Front_Action 
      * @param Mage_Sales_Model_Order $order Order for check
      * @return bool True if payment method of order is SEQR
      */
-    private function isSEQRPayment(Mage_Sales_Model_Order $order) {
-
+    private function isSEQRPayment(Mage_Sales_Model_Order $order)
+    {
         return $order->getPayment() || $order->getPayment()->getMethodInstance()->getCode() != 'seqr';
     }
 
@@ -123,8 +127,8 @@ class Seamless_SEQR_PaymentController extends Mage_Core_Controller_Front_Action 
      *
      * @return Mage_Core_Model_Abstract|null Order object or null if order doesn't created.
      */
-    private function loadOrder() {
-
+    private function loadOrder()
+    {
         $orderid = Mage::registry('orderid');
 
         if (! $orderid) $orderid = $this->getRequest()->getParam('id');
@@ -135,8 +139,8 @@ class Seamless_SEQR_PaymentController extends Mage_Core_Controller_Front_Action 
         return Mage::getModel('sales/order')->load($orderid);
     }
 
-    private function restoreShoppingCart(Mage_Sales_Model_Order $order) {
-
+    private function restoreShoppingCart(Mage_Sales_Model_Order $order)
+    {
         if (! $order->canCancel()) return false;
 
         $quote = Mage::getModel('sales/quote')->load($order->getQuoteId());
@@ -153,14 +157,15 @@ class Seamless_SEQR_PaymentController extends Mage_Core_Controller_Front_Action 
      * @param object $report Status report from getPaymentStatus request.
      * @return null|string Null if status not correct or url
      */
-    private function selectRoute($report) {
-
+    private function selectRoute($report)
+    {
         if (! $report || ! $report->status) return null;
 
-        switch ($report->status) {
+        switch ($report->status)
+        {
             case 'PAID': return 'checkout/onepage/success';
             case 'ISSUED': return 'seqr/payment';
-            case 'CANCELED': return Mage::helper('customer')->isLoggedIn() ? 'sales/order/view' : 'seqr/payment/cancelled';
+            case 'CANCELED': return Mage::helper('checkout/url')->getCheckoutUrl();
             case 'FAILED': return 'checkout/onepage/failure';
         }
 

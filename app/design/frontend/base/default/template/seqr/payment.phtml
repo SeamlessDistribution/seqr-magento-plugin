@@ -1,12 +1,18 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.seqr.com/webshop-plugin/css/seqrShop.css">
 
 <?php
-    echo '<script>'.
-            'seqr.id = "'.$this->getOrderId().'";'.
-            'seqr.timeout = '.$this->getSecondsBeforeCancel().' * 1000;'.
-        '</script>';
+echo '<script>'.
+    'seqr.id = "'.$this->getOrderId().'";'.
+    'seqr.timeout = '.$this->getSecondsBeforeCancel().' * 1000;'.
+    '</script>';
 ?>
 
 <div style="width: 500px; margin: auto;">
-    <?php echo '<script id="seqrShop" src="'.$this->getWebPluginUrl().'"></script>'; ?>
+    <?php if ($this->getQrCode()) { ?>
+        <?php echo '<script id="seqrShop" src="'.$this->getWebPluginUrl().'"></script>'; ?>
+    <?php } else { ?>
+        <h2><?php echo $this->__('Cannot send invoice to SEQR.'); ?> <?php echo $this->__('Please try again later.'); ?></h2>
+    <?php } ?>
+
+    <?php echo '<a href="' . $this->getCancelUrl() . '">' . $this->__('Cancel')  . '</a>'; ?>
 </div>

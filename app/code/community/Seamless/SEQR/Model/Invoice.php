@@ -9,61 +9,93 @@ class Seamless_SEQR_Model_Invoice {
      * @param Mage_Sales_Model_Order $order
      * @return mixed|null
      */
-    public function getInvoice(Mage_Sales_Model_Order $order) {
-
+    public function getInvoice(Mage_Sales_Model_Order $order)
+    {
         $paymentData = $this->getAdditionalData($order);
         if ($paymentData) return $paymentData;
 
         return $this->sendInvoice($order);
     }
 
-    public function getPaymentStatus(Mage_Sales_Model_Order $order) {
-
+    public function getPaymentStatus(Mage_Sales_Model_Order $order)
+    {
         $paymentData = $this->getAdditionalData($order);
         if (! $paymentData) return null;
-        if ($paymentData->status->status === 'PAID'
-            || $paymentData->status->status === 'CANCELED') return $paymentData->status;
+        if ($paymentData->status->status === 'PAID' || $paymentData->status->status === 'CANCELED') return $paymentData->status;
 
-        $result = Mage::getSingleton('seqr/api')
-            ->getPaymentStatus($order, $paymentData->invoiceReference, $paymentData->version);
+        $result = Mage::getSingleton('seqr/api')->getPaymentStatus($order, $paymentData->invoiceReference, $paymentData->version);
 
         $paymentData->status = $result;
         $paymentData->version = $result->version;
 
         $this->setAdditionalData($order, $paymentData);
 
-        if ($result->status === 'PAID') {
-            $order->setStatus(Mage::getStoreConfig('payment/seqr/paid_order_status'))->save();
+        if ($result->status === 'PAID')
+        {
+            try
+            {
+                $order->setStatus(Mage::getStoreConfig('payment/seqr/paid_order_status'));
+                $order->setState('complete_payment');
+                $order->save();
 
-            try {
                 if ($order->getCanSendNewEmailFlag()) $order->sendNewOrderEmail();
 
-                if (Mage::getStoreConfig('payment/seqr/ivoice_autocreate')) {
-                    if(! $order->canInvoice())
-                        Mage::throwException(Mage::helper('core')->__('Cannot create an invoice.'));
+                $payment = $order->getPayment();
+                $payment->setTransactionId($paymentData->invoiceReference);
+                $payment->setIsTransactionClosed(1);
+
+                $transaction = Mage::getModel('core/resource_transaction');
+                $transaction->addObject($order);
+
+                if (Mage::getStoreConfig('payment/seqr/ivoice_autocreate'))
+                {
+                    if(! $order->canInvoice()) Mage::throwException(Mage::helper('core')->__('Cannot create an invoice.'));
 
                     $invoice = Mage::getModel('sales/service_order', $order)->prepareInvoice();
-
                     $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_ONLINE);
                     $invoice->register();
 
-                    Mage::getModel('core/resource_transaction')
-                        ->addObject($invoice)
-                        ->addObject($invoice->getOrder())
-                        ->save();
+                    $transaction->addObject($invoice);
                 }
-            } catch(Exception $e) {
+
+                $transaction->save();
+            }
+            catch(Exception $e)
+            {
                 Mage::logException($e);
             }
-        } else if ($result->status === 'CANCELED') {
+        }
+        else if ($result->status === 'CANCELED')
+        {
             $order->setStatus(Mage::getStoreConfig('payment/seqr/canceled_order_status'))->save();
         }
 
         return $result;
     }
 
-    public function cancelInvoice(Mage_Sales_Model_Order $order) {
+    public function refund(Mage_Sales_Model_Order $order, $creditMemo)
+    {
+        $creditMemos = Mage::getResourceModel('sales/order_creditmemo_collection');
+        $creditMemos->addFieldToFilter('order_id', $order->getId());
+        $creditMemos->setOrder('created_at','DESC');
+        $creditMemos->load();
 
+        return Mage::getSingleton('seqr/api')->refundPayment($order, $creditMemo, $this->getAdditionalData($order)->status->ersReference);
+    }
+
+    public function cancel(Mage_Sales_Model_Order $order)
+    {
+        $order->cancel();
+        $order->setStatus('canceled');
+        $order->save();
+
+        $quote = Mage::getModel('sales/quote')->load($order->getQuoteId());
+        $quote->setIsActive(1);
+        $quote->save();
+    }
+
+    public function cancelInvoice(Mage_Sales_Model_Order $order)
+    {
         $paymentData = $order->getPayment()->getAdditionalData();
         if (! $paymentData) return null;
         if ($paymentData->status->status === 'PAID') return false;
@@ -78,8 +110,8 @@ class Seamless_SEQR_Model_Invoice {
         return $result && $result->resultCode === 0;
     }
 
-    private function sendInvoice(Mage_Sales_Model_Order $order) {
-
+    private function sendInvoice(Mage_Sales_Model_Order $order)
+    {
         $data = Mage::getSingleton('seqr/api')->sendInvoice($order);
         if (! $data) return null;
 
@@ -88,13 +120,13 @@ class Seamless_SEQR_Model_Invoice {
         return $data;
     }
 
-    private function getAdditionalData(Mage_Sales_Model_Order $order) {
-
+    public function getAdditionalData(Mage_Sales_Model_Order $order)
+    {
         return json_decode($order->getPayment()->getAdditionalData());
     }
 
-    private function setAdditionalData(Mage_Sales_Model_Order $order, $data) {
-
+    public function setAdditionalData(Mage_Sales_Model_Order $order, $data)
+    {
         if (! $data || ! $order) return null;
         $order->getPayment()->setAdditionalData(json_encode($data))->save();
 

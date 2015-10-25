@@ -3,7 +3,7 @@
 <config>
     <modules>
         <Seamless_SEQR>
-            <version>1.5.0</version>
+            <version>2.0.0</version>
         </Seamless_SEQR>
     </modules>
 
@@ -50,21 +50,24 @@
     <default>
         <payment>
             <seqr>
-                <active>0</active>
-                <title>SEQR</title>
-                <footer>Purchase on approval is valid for 30 days</footer>
-                <unit_type>EA</unit_type>
                 <model>seqr/paymentmethod</model>
+                <title>SEQR</title>
+
+                <active>0</active>
+                <unit_type>EA</unit_type>
+                <allowspecific>0</allowspecific>
+                <seconds_before_cancel>120</seconds_before_cancel>
+
                 <order_status>pending</order_status>
                 <paid_order_status>processing</paid_order_status>
                 <canceled_order_status>canceled</canceled_order_status>
-                <seconds_before_cancel>120</seconds_before_cancel>
             </seqr>
         </payment>
     </default>
 
     <crontab>
         <jobs>
+            <!-- Implementation of transaction timeout -->
             <seqr_cancel_old_orders>
                 <schedule><cron_expr>0,10,20,30,40,50 * * * *</cron_expr></schedule>
                 <run><model>seqr/observer::cancelOldOrders</model></run>
