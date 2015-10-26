@@ -27,7 +27,7 @@ Plugin provide possibility for shop clients to select SEQR as payment method, an
 ### Installation & Configuration ###
 ![alt tag](/doc/Magento-SEQR-Settings.png)
 
-Plugin can be installed via installation in Magento Connect Manager or by copping all plugin files to the magento directory. Magento Connect available on Magento administration page System > Magento Connect > Magento Connect Manager
+Plugin can be installed via installation in Magento Connect Manager or by copping all plugin files to the magento directory.
 
 Plugin configuration properties available on Magento administration page System > Configuration > Payment Methods (System > Configuration > Payment Options).
 
