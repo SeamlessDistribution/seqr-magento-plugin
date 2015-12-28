@@ -2,7 +2,6 @@
     <seqr_payment_index>
         <reference name="head">
             <action method="addJs"><script>seqr/seqr.js</script></action>
-            <action method="addCss"><stylesheet>css/seqr/confirm.css</stylesheet></action>
         </reference>
 
         <reference name="root">
