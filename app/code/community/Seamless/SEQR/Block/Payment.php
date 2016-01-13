@@ -27,16 +27,13 @@ class Seamless_SEQR_Block_Payment extends Mage_Core_Block_Template
 
     protected function getSeqrUrl()
     {
-        return preg_replace('/^HTTP\:\/\//',
-            Mage::getStoreConfig('payment/seqr/debug') ? 'SEQR-DEBUG://' : 'SEQR://',
-            $qrcode = $this->getQrCode());
+        return preg_replace('/^HTTP\:\/\//', 'SEQR://', $qrcode = $this->getQrCode());
     }
 
     protected function getWebPluginUrl()
     {
         return 'https://cdn.seqr.com/webshop-plugin/js/seqrShop.js'.
-        '#!'.(Mage::getStoreConfig('payment/seqr/debug') ? '' : 'mode=demo').'&injectCSS=true&statusCallback=seqrStatusUpdated&'.
-        'invoiceQRCode='.$this->getQrCode().'&'.
+        '#!injectCSS=true&statusCallback=seqrStatusUpdated&invoiceQRCode='.$this->getQrCode().'&'.
         'statusURL='.Mage::getBaseUrl().'/seqr/payment/check';
     }
 
