@@ -34,7 +34,7 @@ class Seamless_SEQR_Block_Payment extends Mage_Core_Block_Template
     {
         return 'https://cdn.seqr.com/webshop-plugin/js/seqrShop.js'.
         '#!injectCSS=true&statusCallback=seqrStatusUpdated&invoiceQRCode='.$this->getQrCode().'&'.
-        'statusURL='.Mage::getUrl('/seqr/payment/check', array('_secure'=>true));
+        'statusURL='.Mage::getUrl('seqr/payment/check', array('_secure'=>true));
     }
 
     protected function getCancelUrl()
