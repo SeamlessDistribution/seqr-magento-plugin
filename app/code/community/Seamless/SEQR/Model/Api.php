@@ -270,7 +270,7 @@ class Seamless_SEQR_Model_Api
             ),
 
             'backURL' => Mage::getUrl("seqr/payment/submit", array( 'id' => $order->getId() )),
-            'notificationUrl' => Mage::getUrl("seqr/payment/check", array( 'id' => $order->getId(), '_secure'=>true)
+            'notificationUrl' => Mage::getUrl("seqr/payment/check", array( 'id' => $order->getId(), '_secure' => true ))
         );
 
         // Shipping & Handling
